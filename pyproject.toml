@@ -1,0 +1,10 @@
+[project]
+name = "orange-data"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14.3"
+dependencies = [
+    "pre-commit>=4.6.2",
+    "pydantic>=2.13.5",
+]
