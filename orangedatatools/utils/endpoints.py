@@ -41,7 +41,7 @@ class OrangeEndpoints:
         """
         GET-method
         """
-        return f"{cls.documents()}/{inn}/status/{document_id}"
+        return f"{cls.document()}/{inn}/status/{document_id}"
 
     @classmethod
     def itemcode_status(cls, inn: str, itemcode: str) -> str:
