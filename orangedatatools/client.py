@@ -7,8 +7,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from pydantic import BaseModel, validate_call
+from schemas import Correction12Schema, CorrectionSchema, DocumentSchema
 from schemas.client_args import ClientArgs
-from schemas.fiscal_args import DocumentSchema
 from utils.endpoints import OrangeEndpoints as ENDS
 
 
@@ -60,7 +60,7 @@ class OrangeDataClient:
         return base64.b64encode(signature).decode("utf-8")
 
     @validate_call
-    def create_receipt(self, order_params: DocumentSchema):
+    def create_receipt(self, order_params: DocumentSchema) -> tuple[str, int]:
 
         data = self.__combine_data(order_params)
         bytes_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -94,8 +94,28 @@ class OrangeDataClient:
         return r.text, r.status_code
 
     @validate_call
-    def create_correction(self, correction_params: BaseModel):
-        pass
+    def create_correction(self, correction_params: CorrectionSchema) -> tuple[str, int]:
+        data = self.__combine_data(correction_params)
+        bytes_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        sign = self.__computeSignature(bytes_data)
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Signature": sign,
+        }
+
+        url_path = urljoin(self.api_url, ENDS.corrections())
+
+        r = requests.post(
+            url=url_path,
+            headers=headers,
+            json=data,
+            cert=(self.client_cert_path, self.client_key_path),
+            verify=False,
+        )
+
+        return r.text, r.status_code
 
     def check_correction(self, correction_id: str):
         url_path = urljoin(
@@ -106,10 +126,30 @@ class OrangeDataClient:
         return r.text, r.status_code
 
     @validate_call
-    def create_correction12(self, correction_params: BaseModel):
-        pass
+    def create_correction12(self, correction_params: Correction12Schema):
+        data = self.__combine_data(correction_params)
+        bytes_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        sign = self.__computeSignature(bytes_data)
 
-    def check_correction12(self, correction_id: str):
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Signature": sign,
+        }
+
+        url_path = urljoin(self.api_url, ENDS.corrections())
+
+        r = requests.post(
+            url=url_path,
+            headers=headers,
+            json=data,
+            cert=(self.client_cert_path, self.client_key_path),
+            verify=False,
+        )
+
+        return r.text, r.status_code
+
+    def check_correction12(self, correction_id: str) -> tuple[str, int]:
         url_path = urljoin(
             self.api_url, ENDS.correction12_status(self.org_params.inn, correction_id)
         )
@@ -121,7 +161,7 @@ class OrangeDataClient:
     def create_itemcode(self, itemcode_params: BaseModel):
         pass
 
-    def check_itemcode(self, itemcode_id: str):
+    def check_itemcode(self, itemcode_id: str) -> tuple[str, int]:
         url_path = urljoin(
             self.api_url, ENDS.itemcode_status(self.org_params.inn, itemcode_id)
         )

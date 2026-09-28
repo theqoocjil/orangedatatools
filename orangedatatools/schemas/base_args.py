@@ -8,16 +8,27 @@ class ReqBodyBase(BaseModel):
     callbackUrl: Optional[str] = Field(default=None, max_length=1024)
     callbackApiKey: Optional[str] = Field(default=None, max_length=3072)
     meta: Optional[str] = Field(default=None, max_length=128)
-    """
-    Флаг указывающий стоит ли игнорировать
-    проверку КМ.
-    Если флаг не указан, то для формирования
-    чека все КМ должны успешно пройти
-    проверку: в тэге 2106 биты номер 0, 1, 2, 3
-    имеют состояние «1»
-    Если же флаг не указан и КМ не прошел
-    проверку чек не будет сформирован и
-    запрос статуса будет возвращать статус 422
-    Unprocessable Entity
-    """
+
+
+class _IgnoreItemCodeCheckMixin(BaseModel):
+    """Миксин с общим флагом ignoreItemCodeCheck."""
+
     ignoreItemCodeCheck: Optional[bool] = Field(default=None)
+
+
+class ReqBodyBaseFiscal(ReqBodyBase, _IgnoreItemCodeCheckMixin):
+    """Базовая схема для фискальных документов."""
+
+    pass
+
+
+class ReqBodyBaseCorrection(ReqBodyBase):
+    """Базовая схема для чеков коррекции."""
+
+    pass
+
+
+class ReqBodyBaseCorrection12(ReqBodyBase, _IgnoreItemCodeCheckMixin):
+    """Базовая схема для чеков коррекции (формат 1.2)."""
+
+    pass
