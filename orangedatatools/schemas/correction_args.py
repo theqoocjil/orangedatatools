@@ -14,7 +14,7 @@ class CorrectionTypes(IntEnum):
 
 
 class CorrectionCalcIndicator(IntEnum):
-    """Индикатор расчёта для чека коррекции (только доход/расход)."""
+    """Calculation indicator for a correction receipt (income/expense only)."""
 
     income = 1
     expense = 3

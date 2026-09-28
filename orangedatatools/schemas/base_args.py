@@ -11,24 +11,24 @@ class ReqBodyBase(BaseModel):
 
 
 class _IgnoreItemCodeCheckMixin(BaseModel):
-    """Миксин с общим флагом ignoreItemCodeCheck."""
+    """Mixin with the common flag ignoreItemCodeCheck."""
 
     ignoreItemCodeCheck: Optional[bool] = Field(default=None)
 
 
 class ReqBodyBaseFiscal(ReqBodyBase, _IgnoreItemCodeCheckMixin):
-    """Базовая схема для фискальных документов."""
+    """Base schema for fiscal documents."""
 
     pass
 
 
 class ReqBodyBaseCorrection(ReqBodyBase):
-    """Базовая схема для чеков коррекции."""
+    """Base schema for correction receipts."""
 
     pass
 
 
 class ReqBodyBaseCorrection12(ReqBodyBase, _IgnoreItemCodeCheckMixin):
-    """Базовая схема для чеков коррекции (формат 1.2)."""
+    """Base schema for correction receipts (format 1.2)."""
 
     pass
