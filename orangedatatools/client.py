@@ -1,5 +1,15 @@
-from pydantic import validate_call
+import base64
+import json
+from urllib.parse import urljoin
+
+import requests
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from pydantic import BaseModel, validate_call
 from schemas.client_args import ClientArgs
+from schemas.fiscal_args import DocumentSchema
+from utils.endpoints import OrangeEndpoints as ENDS
 
 
 class OrangeDataClient:
@@ -26,3 +36,50 @@ class OrangeDataClient:
         self.key_private_path = key_private_path
         self.client_key_path = client_key_path
         self.client_cert_path = client_cert_path
+
+    def __combine_data(self, data: BaseModel) -> dict:
+        """Merging organization parameters and receipt data
+
+        Args:
+            data (BaseModel): Pydantic data schema
+        """
+
+        return {
+            **self.org_params.model_dump(),
+            **data.model_dump(exclude_none=True, mode="json"),
+        }
+
+    def __computeSignature(self, data: bytes):
+        """Creating a signature based on a private pem key"""
+
+        with open(self.key_private_path, "rb") as pem_in:
+            pemlines = pem_in.read()
+        private_key = load_pem_private_key(pemlines, password=None)
+        signature = private_key.sign(data, padding.PKCS1v15(), hashes.SHA256())
+
+        return base64.b64encode(signature).decode("utf-8")
+
+    @validate_call
+    def create_receipt(self, order_params: DocumentSchema):
+
+        data = self.__combine_data(order_params)
+        bytes_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        sign = self.__computeSignature(bytes_data)
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Signature": sign,
+        }
+
+        url_path = urljoin(self.api_url, ENDS.document())
+
+        r = requests.post(
+            url=url_path,
+            headers=headers,
+            json=data,
+            cert=(self.client_cert_path, self.client_key_path),
+            verify=False,
+        )
+
+        return r.text, r.status_code

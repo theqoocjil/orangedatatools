@@ -38,6 +38,7 @@ class OperationalDetailsSchema(BaseModel):
 class InformationBuyerSchema(BaseModel):
     name: Optional[str] = Field(default=None, max_length=239)
     inn: Optional[str] = Field(default=None, min_length=10, max_length=12)
+    # нужно доработать поле под требуемый шаблон
     birthDate: Optional[str] = Field(default=None, max_length=10)
     citizenship: Optional[str] = Field(default=None, max_length=3)
     identityDocumentCode: Optional[str] = Field(default=None, max_length=2)
@@ -211,16 +212,16 @@ class DocumentSchemaContent(BaseModel):
     checkClose: ReceiptClosingParametersSchema
     customerContact: str = Field(max_length=64)
     agentType: Optional[int] = Field(default=None, le=127)
-    paymentTransferOperatorPhoneNumbers: Optional[list[str]] = Field(default=None)
+    paymentTransferOperatorPhoneNumbers: Optional[list[Contact]] = Field(default=None)
     paymentAgentOperation: Optional[str] = Field(default=None, max_length=24)
-    paymentAgentPhoneNumbers: Optional[list[str]] = Field(default=None)
-    paymentOperatorPhoneNumbers: Optional[list[str]] = Field(default=None)
+    paymentAgentPhoneNumbers: Optional[list[Contact]] = Field(default=None)
+    paymentOperatorPhoneNumbers: Optional[list[Contact]] = Field(default=None)
     paymentOperatorName: Optional[str] = Field(default=None, max_length=64)
     paymentOperatorAddress: Optional[str] = Field(default=None, max_length=243)
     paymentOperatorINN: Optional[str] = Field(
         default=None, min_length=10, max_length=12
     )
-    supplierPhoneNumbers: Optional[list[str]] = Field(default=None)
+    supplierPhoneNumbers: Optional[list[Contact]] = Field(default=None)
     additionalUserAttribute: Optional[AdditionalUserDetailsSchema] = Field(default=None)
     additionalAttribute: Optional[str] = Field(default=None, max_length=16)
     automatNumber: Optional[str] = Field(default=None, max_length=20)
@@ -244,6 +245,9 @@ class DocumentSchemaContent(BaseModel):
     vat9Sum: Optional[Decimal] = Field(default=None, decimal_places=2)
     vat10Sum: Optional[Decimal] = Field(default=None, decimal_places=2)
     operationalAttribute: Optional[OperationalDetailsSchema] = Field(default=None)
+    timeZone: Optional[int] = Field(ge=1, le=11)
+    isInternetStore: Optional[bool]
+    useTax20: Optional[bool]
     # industryAttribute: ???? ссылается само на себя???
 
 
