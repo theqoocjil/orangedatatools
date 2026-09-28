@@ -16,7 +16,7 @@ class OrangeEndpoints:
         return f"{cls.BASE}/documents"
 
     @classmethod
-    def correction12(cls) -> str:
+    def corrections12(cls) -> str:
         """
         POST-method
         """

@@ -137,7 +137,7 @@ class OrangeDataClient:
             "X-Signature": sign,
         }
 
-        url_path = urljoin(self.api_url, ENDS.corrections())
+        url_path = urljoin(self.api_url, ENDS.corrections12())
 
         r = requests.post(
             url=url_path,
