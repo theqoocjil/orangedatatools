@@ -83,3 +83,48 @@ class OrangeDataClient:
         )
 
         return r.text, r.status_code
+
+    def check_receipt(self, document_id: str):
+
+        url_path = urljoin(
+            self.api_url, ENDS.document_status(self.org_params.inn, document_id)
+        )
+        r = requests.get(url=url_path)
+
+        return r.text, r.status_code
+
+    @validate_call
+    def create_correction(self, correction_params: BaseModel):
+        pass
+
+    def check_correction(self, correction_id: str):
+        url_path = urljoin(
+            self.api_url, ENDS.corrections_status(self.org_params.inn, correction_id)
+        )
+        r = requests.get(url=url_path)
+
+        return r.text, r.status_code
+
+    @validate_call
+    def create_correction12(self, correction_params: BaseModel):
+        pass
+
+    def check_correction12(self, correction_id: str):
+        url_path = urljoin(
+            self.api_url, ENDS.correction12_status(self.org_params.inn, correction_id)
+        )
+        r = requests.get(url=url_path)
+
+        return r.text, r.status_code
+
+    @validate_call
+    def create_itemcode(self, itemcode_params: BaseModel):
+        pass
+
+    def check_itemcode(self, itemcode_id: str):
+        url_path = urljoin(
+            self.api_url, ENDS.itemcode_status(self.org_params.inn, itemcode_id)
+        )
+        r = requests.get(url=url_path)
+
+        return r.text, r.status_code
