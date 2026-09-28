@@ -37,13 +37,6 @@ class OrangeEndpoints:
         return f"{cls.BASE}/corrections"
 
     @classmethod
-    def validate_document(cls) -> str:
-        """
-        POST-method
-        """
-        return f"{cls.BASE}/validateDocument"
-
-    @classmethod
     def document_status(cls, inn: str, document_id: str) -> str:
         """
         GET-method
