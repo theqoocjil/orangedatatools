@@ -1,13 +1,25 @@
 [project]
-name = "orange-data"
+name = "OrangeDataPack"
 version = "0.0.1"
-description = "Package for OrangeData service"
+description = "Package for OrangeData API service"
 readme = "README.md"
 requires-python = ">=3.14.3"
 dependencies = [
     "cryptography>=50.0.1",
-    "pre-commit>=4.6.2",
     "pydantic>=2.13.5",
     "pydantic-extra-types>=2.11.1",
     "requests>=2.34.2",
+]
+[build-system]
+requires = ["uv_build>=0.12.17"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "orangedatatools"
+module-root = ""
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+    "uv-build>=0.12.19",
 ]

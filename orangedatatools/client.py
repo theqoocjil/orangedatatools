@@ -7,9 +7,15 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from pydantic import BaseModel, validate_call
-from schemas import Correction12Schema, CorrectionSchema, DocumentSchema, ItemCodeSchema
-from schemas.client_args import ClientArgs
-from utils.endpoints import OrangeEndpoints as ENDS
+
+from orangedatatools.schemas import (
+    Correction12Schema,
+    CorrectionSchema,
+    DocumentSchema,
+    ItemCodeSchema,
+)
+from orangedatatools.schemas.client_args import ClientArgs
+from orangedatatools.utils.endpoints import OrangeEndpoints as ENDS
 
 
 class OrangeDataClient:
