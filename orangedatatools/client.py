@@ -90,7 +90,7 @@ class OrangeDataClient:
         return r.text, r.status_code
 
     def __Get(self, path: str) -> tuple[str, int]:
-        url_path = urljoin(self.api_url, path)
+        url_path = urljoin(self.__api_url, path)
         r = requests.get(url=url_path)
 
         return r.text, r.status_code
