@@ -97,7 +97,11 @@ class OrangeDataClient:
     @validate_call
     def __Get(self, path: NonEmptyStr) -> tuple[str, int]:
         url_path = urljoin(self.__api_url, path)
-        r = requests.get(url=url_path, timeout=30)
+        r = requests.get(
+            url=url_path,
+            cert=(self.__client_cert_path, self.__client_key_path),
+            timeout=30,
+        )
 
         return r.text, r.status_code
 
