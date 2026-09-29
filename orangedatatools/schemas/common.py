@@ -163,7 +163,7 @@ class PaymentsInfo(BaseModel):
 class ReceiptClosingParametersSchema(BaseModel):
     payments: list[PaymentSchema]
     taxationSystem: TaxSystem
-    electronicPaymentsInfo: PaymentsInfo
+    electronicPaymentsInfo: Optional[PaymentsInfo] = Field(default=None)
 
 
 class PostionSchema(BaseModel):
