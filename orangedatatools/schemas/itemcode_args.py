@@ -8,10 +8,12 @@ from .common import DecimalField, FractionalQuantityMarkedProductSchema
 
 class ItemCodeSchemaContent(BaseModel):
     plannedStatus: int = Field(le=256)
-    itemCode: int = Field(ge=1, le=223)
+    itemCode: str = Field(min_length=1, max_length=223)
     quantityMeasurementUnit: Optional[int] = Field(le=255, default=None)
-    quantity: Optional[DecimalField]
-    fractionalQuantity: Optional[FractionalQuantityMarkedProductSchema]
+    quantity: Optional[DecimalField] = Field(default=None)
+    fractionalQuantity: Optional[FractionalQuantityMarkedProductSchema] = Field(
+        default=None
+    )
 
 
 class ItemCodeSchema(ReqBodyBaseFiscal):
