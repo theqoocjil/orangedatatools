@@ -1,12 +1,13 @@
 import base64
 import json
+from typing import Annotated
 from urllib.parse import urljoin
 
 import requests
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from pydantic import BaseModel, validate_call
+from pydantic import BaseModel, StringConstraints, validate_call
 
 from orangedatatools.schemas import (
     Correction12Schema,
@@ -17,16 +18,18 @@ from orangedatatools.schemas import (
 from orangedatatools.schemas.client_args import ClientArgs
 from orangedatatools.utils.endpoints import OrangeEndpoints as ENDS
 
+NonEmptyStr = Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
+
 
 class OrangeDataClient:
     @validate_call
     def __init__(
         self,
         org_params: ClientArgs,
-        api_url: str,
-        key_private_path: str,
-        client_key_path: str,
-        client_cert_path: str,
+        api_url: NonEmptyStr,
+        key_private_path: NonEmptyStr,
+        client_key_path: NonEmptyStr,
+        client_cert_path: NonEmptyStr,
     ):
         """Initializes the client with the passed parameters.
 
@@ -56,18 +59,19 @@ class OrangeDataClient:
             **data.model_dump(exclude_none=True, mode="json"),
         }
 
-    def __readPrivateKey(self, private_key_path: str):
+    def __readPrivateKey(self, private_key_path: NonEmptyStr):
         with open(private_key_path, "rb") as pem_in:
             pemlines = pem_in.read()
         return load_pem_private_key(pemlines, password=None)
 
-    def __computeSignature(self, data: bytes) -> base64:
+    def __computeSignature(self, data: bytes) -> str:
         """Creating a signature based on a private pem key"""
         signature = self.__private_key.sign(data, padding.PKCS1v15(), hashes.SHA256())
 
         return base64.b64encode(signature).decode("utf-8")
 
-    def __signPost(self, params: BaseModel, path: str) -> tuple[str, int]:
+    @validate_call
+    def __signPost(self, params: BaseModel, path: NonEmptyStr) -> tuple[str, int]:
         data = self.__combineData(params)
         bytes_data = json.dumps(data).encode("utf-8")
         sign = self.__computeSignature(bytes_data)
@@ -85,13 +89,15 @@ class OrangeDataClient:
             headers=headers,
             json=data,
             cert=(self.__client_cert_path, self.__client_key_path),
+            timeout=30,
         )
 
         return r.text, r.status_code
 
-    def __Get(self, path: str) -> tuple[str, int]:
+    @validate_call
+    def __Get(self, path: NonEmptyStr) -> tuple[str, int]:
         url_path = urljoin(self.__api_url, path)
-        r = requests.get(url=url_path)
+        r = requests.get(url=url_path, timeout=30)
 
         return r.text, r.status_code
 
@@ -99,7 +105,8 @@ class OrangeDataClient:
     def create_receipt(self, order_params: DocumentSchema) -> tuple[str, int]:
         return self.__signPost(order_params, ENDS.document())
 
-    def check_receipt(self, document_id: str) -> tuple[str, int]:
+    @validate_call
+    def check_receipt(self, document_id: NonEmptyStr) -> tuple[str, int]:
         path = ENDS.document_status(self.org_params.inn, document_id)
 
         return self.__Get(path)
@@ -108,7 +115,8 @@ class OrangeDataClient:
     def create_correction(self, correction_params: CorrectionSchema) -> tuple[str, int]:
         return self.__signPost(correction_params, ENDS.corrections())
 
-    def check_correction(self, correction_id: str) -> tuple[str, int]:
+    @validate_call
+    def check_correction(self, correction_id: NonEmptyStr) -> tuple[str, int]:
         path = ENDS.corrections_status(self.org_params.inn, correction_id)
 
         return self.__Get(path)
@@ -119,7 +127,8 @@ class OrangeDataClient:
     ) -> tuple[str, int]:
         return self.__signPost(correction_params, ENDS.corrections12())
 
-    def check_correction12(self, correction_id: str) -> tuple[str, int]:
+    @validate_call
+    def check_correction12(self, correction_id: NonEmptyStr) -> tuple[str, int]:
         path = ENDS.correction12_status(self.org_params.inn, correction_id)
 
         return self.__Get(path)
@@ -128,7 +137,8 @@ class OrangeDataClient:
     def create_itemcode(self, itemcode_params: ItemCodeSchema) -> tuple[str, int]:
         return self.__signPost(itemcode_params, ENDS.itemcode())
 
-    def check_itemcode(self, itemcode_id: str) -> tuple[str, int]:
+    @validate_call
+    def check_itemcode(self, itemcode_id: NonEmptyStr) -> tuple[str, int]:
         path = ENDS.itemcode_status(self.org_params.inn, itemcode_id)
 
         return self.__Get(path)
