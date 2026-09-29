@@ -67,7 +67,7 @@ class OrangeDataClient:
 
     def __signPost(self, params: BaseModel, path: str) -> tuple[str, int]:
         data = self.__combineData(params)
-        bytes_data = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        bytes_data = json.dumps(data).encode("utf-8")
         sign = self.__computeSignature(bytes_data)
 
         headers = {
