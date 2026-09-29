@@ -38,10 +38,11 @@ class OrangeDataClient:
             client_cert_path (str): The path to the client SSL certificate.
         """
         self.org_params = org_params
-        self.api_url = api_url.rstrip("/")
-        self.key_private_path = key_private_path
-        self.client_key_path = client_key_path
-        self.client_cert_path = client_cert_path
+        self.__api_url = api_url.rstrip("/")
+        self.__client_key_path = client_key_path
+        self.__client_cert_path = client_cert_path
+
+        self.__private_key = self.__readPrivateKey(key_private_path)
 
     def __combineData(self, data: BaseModel) -> dict:
         """Merging organization parameters and receipt data
@@ -55,13 +56,14 @@ class OrangeDataClient:
             **data.model_dump(exclude_none=True, mode="json"),
         }
 
+    def __readPrivateKey(self, private_key_path: str):
+        with open(private_key_path, "rb") as pem_in:
+            pemlines = pem_in.read()
+        return load_pem_private_key(pemlines, password=None)
+
     def __computeSignature(self, data: bytes) -> base64:
         """Creating a signature based on a private pem key"""
-
-        with open(self.key_private_path, "rb") as pem_in:
-            pemlines = pem_in.read()
-        private_key = load_pem_private_key(pemlines, password=None)
-        signature = private_key.sign(data, padding.PKCS1v15(), hashes.SHA256())
+        signature = self.__private_key.sign(data, padding.PKCS1v15(), hashes.SHA256())
 
         return base64.b64encode(signature).decode("utf-8")
 
@@ -76,14 +78,13 @@ class OrangeDataClient:
             "X-Signature": sign,
         }
 
-        url_path = urljoin(self.api_url, path)
+        url_path = urljoin(self.__api_url, path)
 
         r = requests.post(
             url=url_path,
             headers=headers,
             json=data,
-            cert=(self.client_cert_path, self.client_key_path),
-            verify=False,
+            cert=(self.__client_cert_path, self.__client_key_path),
         )
 
         return r.text, r.status_code
