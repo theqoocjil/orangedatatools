@@ -1,6 +1,6 @@
 [project]
 name = "orangedatatools"
-version = "0.0.2"
+version = "1.0.0"
 description = "Package for OrangeData API service"
 readme = "README.md"
 requires-python = ">=3.14.3"
