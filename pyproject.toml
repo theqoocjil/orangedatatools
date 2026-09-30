@@ -1,7 +1,9 @@
 [project]
 name = "orangedatatools"
-version = "1.0.0"
+version = "1.0.1"
 description = "Package for OrangeData API service"
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.14.3"
 dependencies = [
